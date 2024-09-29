@@ -5,6 +5,12 @@
 
 import Foundation
 
+enum BenchmarkError: Error {
+    case invalidInput
+    case invalidOutput
+    case benchmarkUnsupportedOs
+}
+
 struct BenchmarkMetadata: Codable, Equatable {
 
     var timestamp: TimeInterval?
@@ -13,6 +19,7 @@ struct BenchmarkMetadata: Codable, Equatable {
     var swcVersion: String
     var description: String?
 
+#if os(macOS)
     private static func run(command: URL, arguments: [String] = []) throws -> String {
         let task = Process()
         let pipe = Pipe()
@@ -29,15 +36,18 @@ struct BenchmarkMetadata: Codable, Equatable {
         let output = String(data: data, encoding: .utf8)!
         return output
     }
+#endif
 
     private static func getExecURL(for command: String) throws -> URL {
         let args = ["-c", "which \(command)"]
         #if os(Windows)
             swcompExit(.benchmarkCannotGetSubcommandPathWindows)
-        #else
+        #elseif os(macOS)
             let output = try BenchmarkMetadata.run(command: URL(fileURLWithPath: "/bin/sh"), arguments: args)
+            return URL(fileURLWithPath: String(output.dropLast()))
+        #else
+            throw BenchmarkError.benchmarkUnsupportedOs
         #endif
-        return URL(fileURLWithPath: String(output.dropLast()))
     }
 
     private static func getOsInfo() throws -> String {
@@ -46,8 +56,10 @@ struct BenchmarkMetadata: Codable, Equatable {
         #else
             #if os(Windows)
                 return "Unknown Windows OS"
-            #else
+            #elseif os(macOS)
                 return try BenchmarkMetadata.run(command: BenchmarkMetadata.getExecURL(for: "sw_vers"))
+            #else
+                throw BenchmarkError.benchmarkUnsupportedOs
             #endif
         #endif
     }
@@ -55,14 +67,16 @@ struct BenchmarkMetadata: Codable, Equatable {
     init(_ description: String?, _ preserveTimestamp: Bool) throws {
         self.timestamp = preserveTimestamp ? Date.timeIntervalSinceReferenceDate : nil
         self.osInfo = try BenchmarkMetadata.getOsInfo()
-        #if os(Windows)
-            self.swiftVersion = "Unknown Swift version on Windows"
-        #else
-            self.swiftVersion = try BenchmarkMetadata.run(command: BenchmarkMetadata.getExecURL(for: "swift"),
-                                                          arguments: ["-version"])
-        #endif
         self.swcVersion = _SWC_VERSION
         self.description = description
+        #if os(Windows)
+            self.swiftVersion = "Unknown Swift version on Windows"
+        #elseif os(macOS)
+            self.swiftVersion = try BenchmarkMetadata.run(command: BenchmarkMetadata.getExecURL(for: "swift"),
+                                                          arguments: ["-version"])
+        #else
+            throw BenchmarkError.benchmarkUnsupportedOs
+        #endif
     }
 
     func print() {

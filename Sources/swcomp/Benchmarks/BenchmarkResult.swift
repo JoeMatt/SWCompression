@@ -5,7 +5,7 @@
 
 import Foundation
 
-struct BenchmarkResult: Codable {
+struct BenchmarkResult: Codable, Sendable {
 
     var name: String
     var input: String

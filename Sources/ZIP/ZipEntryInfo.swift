@@ -7,7 +7,7 @@ import Foundation
 import BitByteData
 
 /// Provides access to information about an entry from the ZIP container.
-public struct ZipEntryInfo: ContainerEntryInfo {
+public struct ZipEntryInfo: ContainerEntryInfo, Sendable {
 
     // MARK: ContainerEntryInfo
 
@@ -97,7 +97,7 @@ public struct ZipEntryInfo: ContainerEntryInfo {
 
      - Note: No particular order of extra fields is guaranteed.
      */
-    public let customExtraFields: [ZipExtraField]
+    public let customExtraFields: [any ZipExtraField]
 
     /// CRC32 of entry's data.
     public let crc: UInt32
@@ -188,5 +188,57 @@ public struct ZipEntryInfo: ContainerEntryInfo {
         customExtraFields.append(contentsOf: localHeader.customExtraFields)
         self.customExtraFields = customExtraFields
     }
+}
 
+extension ZipEntryInfo: Codable {
+    enum CodingKeys: String, CodingKey {
+        case name, size, type, accessTime, creationTime, modificationTime, permissions
+        case comment, externalFileAttributes, dosAttributes, isTextFile, fileSystemType
+        case compressionMethod, ownerID, groupID, customExtraFields, crc
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        name = try container.decode(String.self, forKey: .name)
+        size = try container.decodeIfPresent(Int.self, forKey: .size)
+        type = try container.decode(ContainerEntryType.self, forKey: .type)
+        accessTime = try container.decodeIfPresent(Date.self, forKey: .accessTime)
+        creationTime = try container.decodeIfPresent(Date.self, forKey: .creationTime)
+        modificationTime = try container.decodeIfPresent(Date.self, forKey: .modificationTime)
+        permissions = try container.decodeIfPresent(Permissions.self, forKey: .permissions)
+        comment = try container.decode(String.self, forKey: .comment)
+        externalFileAttributes = try container.decode(UInt32.self, forKey: .externalFileAttributes)
+        dosAttributes = try container.decodeIfPresent(DosAttributes.self, forKey: .dosAttributes)
+        isTextFile = try container.decode(Bool.self, forKey: .isTextFile)
+        fileSystemType = try container.decode(FileSystemType.self, forKey: .fileSystemType)
+        compressionMethod = try container.decode(CompressionMethod.self, forKey: .compressionMethod)
+        ownerID = try container.decodeIfPresent(Int.self, forKey: .ownerID)
+        groupID = try container.decodeIfPresent(Int.self, forKey: .groupID)
+//        customExtraFields = try container.decode([ZipExtraField].self, forKey: .customExtraFields)
+        customExtraFields = []
+        crc = try container.decode(UInt32.self, forKey: .crc)
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(name, forKey: .name)
+        try container.encodeIfPresent(size, forKey: .size)
+        try container.encode(type, forKey: .type)
+        try container.encodeIfPresent(accessTime, forKey: .accessTime)
+        try container.encodeIfPresent(creationTime, forKey: .creationTime)
+        try container.encodeIfPresent(modificationTime, forKey: .modificationTime)
+        try container.encodeIfPresent(permissions, forKey: .permissions)
+        try container.encode(comment, forKey: .comment)
+        try container.encode(externalFileAttributes, forKey: .externalFileAttributes)
+        try container.encodeIfPresent(dosAttributes, forKey: .dosAttributes)
+        try container.encode(isTextFile, forKey: .isTextFile)
+        try container.encode(fileSystemType, forKey: .fileSystemType)
+        try container.encode(compressionMethod, forKey: .compressionMethod)
+        try container.encodeIfPresent(ownerID, forKey: .ownerID)
+        try container.encodeIfPresent(groupID, forKey: .groupID)
+//        try container.encode(customExtraFields, forKey: .customExtraFields)
+        try container.encode(crc, forKey: .crc)
+    }
 }

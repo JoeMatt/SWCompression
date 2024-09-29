@@ -6,7 +6,7 @@
 import Foundation
 
 /// Represents an entry from the ZIP container.
-public struct ZipEntry: ContainerEntry {
+public struct ZipEntry: ContainerEntry, Codable, Sendable {
 
     public let info: ZipEntryInfo
 

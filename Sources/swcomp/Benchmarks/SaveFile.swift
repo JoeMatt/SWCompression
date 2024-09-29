@@ -5,17 +5,15 @@
 
 import Foundation
 
-struct SaveFile: Codable {
+struct SaveFile: Codable, Sendable {
 
-    struct Run: Codable {
+    struct Run: Codable, Sendable {
 
         var metadataUUID: UUID
         var results: [BenchmarkResult]
 
     }
-
     var metadatas: [UUID: BenchmarkMetadata]
-
     var runs: [Run]
 
     static func load(from path: String) throws -> SaveFile {

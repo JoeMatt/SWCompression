@@ -6,7 +6,7 @@
 import Foundation
 
 /// Provides access to information about an entry from the 7-Zip container.
-public struct SevenZipEntryInfo: ContainerEntryInfo {
+public struct SevenZipEntryInfo: ContainerEntryInfo, Codable, Sendable {
 
     // MARK: ContainerEntryInfo
 

@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:6.0
 import PackageDescription
 
 var package = Package(
@@ -17,7 +17,7 @@ var package = Package(
             targets: ["SWCompression"]),
     ],
     dependencies: [
-        .package(name: "BitByteData", url: "https://github.com/tsolomko/BitByteData",
+        .package(url: "https://github.com/tsolomko/BitByteData",
                  from: "2.0.0"),
     ],
     targets: [
@@ -29,11 +29,11 @@ var package = Package(
             sources: ["Common", "7-Zip", "BZip2", "Deflate", "GZip", "LZ4", "LZMA", "LZMA2", "TAR", "XZ", "ZIP", "Zlib"],
             resources: [.copy("PrivacyInfo.xcprivacy")]),
     ],
-    swiftLanguageVersions: [.v5]
+    swiftLanguageModes: [.v5, .v6]
 )
 
 #if os(macOS)
-package.dependencies.append(.package(name: "SwiftCLI", url: "https://github.com/jakeheis/SwiftCLI", from: "6.0.0"))
+package.dependencies.append(.package(url: "https://github.com/jakeheis/SwiftCLI", from: "6.0.0"))
 package.targets.append(.executableTarget(name: "swcomp", dependencies: ["SWCompression", "SwiftCLI"], path: "Sources",
             exclude: ["Common", "7-Zip", "BZip2", "Deflate", "GZip", "LZ4", "LZMA", "LZMA2", "TAR", "XZ", "ZIP", "Zlib", "PrivacyInfo.xcprivacy"],
             sources: ["swcomp"]))

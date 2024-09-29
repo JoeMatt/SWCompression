@@ -7,10 +7,10 @@ import Foundation
 import BitByteData
 
 /// Provides unarchive and archive functions for GZip archives.
-public class GzipArchive: Archive {
+public final class GzipArchive: Archive, Codable, Sendable {
 
     /// Represents the member of a multi-member GZip archive.
-    public struct Member {
+    public struct Member: Codable, Sendable {
 
         /// GZip header of a member.
         public let header: GzipHeader

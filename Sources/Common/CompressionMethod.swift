@@ -6,7 +6,7 @@
 import Foundation
 
 /// Represents a (de)compression method.
-public enum CompressionMethod {
+public enum CompressionMethod: Codable, Sendable {
     /// BZip2.
     case bzip2
     /// Copy (no compression).

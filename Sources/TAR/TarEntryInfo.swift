@@ -6,7 +6,7 @@
 import Foundation
 
 /// Provides access to information about an entry from the TAR container.
-public struct TarEntryInfo: ContainerEntryInfo {
+public struct TarEntryInfo: ContainerEntryInfo, Codable, Sendable {
 
     // MARK: ContainerEntryInfo
 
@@ -70,7 +70,7 @@ public struct TarEntryInfo: ContainerEntryInfo {
     // MARK: TAR specific
 
     /// Entry's compression method. Always `.copy` for the entries of TAR containers.
-    public let compressionMethod = CompressionMethod.copy
+    public var compressionMethod: CompressionMethod { CompressionMethod.copy }
 
     /**
      ID of entry's owner.

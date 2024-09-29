@@ -7,7 +7,7 @@ import Foundation
 import BitByteData
 
 /// Provides functions for work with ZIP containers.
-public class ZipContainer: Container {
+public final class ZipContainer: Container, Codable, Sendable {
 
     /**
      Contains user-defined extra fields. When either `ZipContainer.info(container:)` or `ZipContainer.open(container:)`
@@ -22,7 +22,7 @@ public class ZipContainer: Container {
      - Warning: Modifying this dictionary while either `info(container:)` or `open(container:)` function is being
      executed may cause undefined behavior.
      */
-    public static var customExtraFields = [UInt16: ZipExtraField.Type]()
+    public static let customExtraFields = [UInt16: ZipExtraField.Type]()
 
     /**
      Processes ZIP container and returns an array of `ZipEntry` with information and data for all entries.
